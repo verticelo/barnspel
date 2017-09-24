@@ -29,6 +29,8 @@ new Vue({
 
   mounted: async function () {
     await this.getWordlist()
+    this.instantiateWords()
+    this.sortWords()
     this.startWord()
   },
 
@@ -39,6 +41,25 @@ new Vue({
         function (resp) { return resp.text(); }
       ).then((wordlist) => {
         this.words = wordlist.split(/[\n]+/)
+      });
+    },
+
+    instantiateWords: function () {
+      let wordlist = []
+      let now = new Date()
+
+      for (word of this.words) {
+        if (word !== "") {
+          wordlist.push({"word": word, "difficulty": word.length, "timeShow": now})
+        }
+      }
+
+      this.words = wordlist
+    },
+
+    sortWords: function () {
+      this.words.sort(function(a, b) {
+        return a.difficulty > b.difficulty ? 1 : -1;
       });
     },
 
@@ -55,7 +76,7 @@ new Vue({
     },
 
     nextWord: function () {
-      return this.words[Math.floor(Math.random()*this.words.length)]
+      return this.words[Math.floor(Math.random()*this.words.length)].word
     },
 
     attemptAnswer: function () {
