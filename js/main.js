@@ -15,6 +15,7 @@ new Vue({
     failedLetterIndexSecond: null,
 
     word: 'Loading',
+    /*
     words: ['bil', 'fisk', 'sol', 'apa', 'gris', 'kanin', 'samuel', 'motocross', 'mamma', 'boll', 'fotboll', 'pojke', 'flicka', 'hem', 'cykel', 'och',
             'macka', 'öga', 'tröja', 'kalops', 'byxa', 'träna', 'buss', 'tak', 'mjölk', 'fot', 'joakim', 'morfar', 'farfar', 'mormor', 'farmor', 'lada', 'linnea', 'isak', 'tindra',
             'lina', 'matilda', 'sladd', 'köttfärssås', 'snor', 'element', 'trött', 'stor', 'laxsoppa', 'säng', 'ring', 'hoppa', 'elda', 'toalett', 'bus', 'spindel', 'orm',
@@ -22,14 +23,25 @@ new Vue({
         'miriam', 'noomi', 'michael', 'daniel', 'gurka', 'lejon', 'tiger', 'elefant', 'äpple', 'kol', 'tomat',
         'golv', 'yxa', 'penna', 'panda', 'polis', 'eld'
           ]
-    //words: ['cro']
+    */
+    words: []
   },
 
-  mounted: function () {
-    this.startWord();
+  mounted: async function () {
+    await this.getWordlist()
+    this.startWord()
   },
 
   methods: {
+
+    getWordlist: async function () {
+      return fetch('js/wordlist.txt').then(
+        function (resp) { return resp.text(); }
+      ).then((wordlist) => {
+        this.words = wordlist.split(/[\n]+/)
+      });
+    },
+
     startWord: function () {
       this.word = this.nextWord()
       this.speakWord("Försök att läsa ordet", 1)
