@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+
+<title>Multiplicator Game</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .child-container {
+        text-align: center;
+    }
+    .correct {
+        font-size: 2em;
+        color: #10b510;
+    }
+    .incorrect {
+        font-size: 2em;
+        color: #cd0a0a;
+    }
+    #question {
+        margin: 60px 0;
+        font-size: 3em;
+        font-weight: bold;
+    }
+    #answerInformation {
+        margin-top: 50px;
+    }
+    #progressBar {
+        margin-top: 50px;
+        display: flex;
+        justify-content: center;
+    }
+</style>
+
+<body>
+    <div class="child-container">
+        <h3>Multiplicator - A game used by the students at the School of a Thousand Tears</h3>
+        <div id="question"></div>
+        <div><input type="number" id="answer"> <input type="button" id="submitAnswer" value="Answer"></div>
+        <div id="answerInformation"></div>
+        <div id="progressBar"></div>
+    </div>
+</body>
+
+<script>
+    // TODO: Keep the state of the current question and correct answer in an object instead of passing it to HTML etc..
+    // TODO: Add leaderboard
+    // TODO: Calculate scores as 10p if they answer within 1second, then -2p for every second waited
+    // TODO: Add restart button
+    // TODO: Capture the name of the player at the end of the round, keep for the session
+
+    let question          = document.getElementById('question');
+    let answerAttempt     = document.getElementById('answer');
+    let submitAnswer      = document.getElementById('submitAnswer');
+    let answerInformation = document.getElementById('answerInformation');
+    let progressBar       = document.getElementById('progressBar');
+    let cntErrors         = 0;
+    let questions         = [];
+    
+    // Calculate the questions based on the number series
+    let numbers   = [3, 4, 5, 6, 7, 8, 9, 11, 12];
+    //let numbers   = [3, 4];
+    for (idx in numbers) {
+        for (let i = idx; i < numbers.length; i++) {
+            questions.push([numbers[idx], numbers[i]])
+        }
+    }
+
+    let cntQuestions = questions.length;
+
+    function generateNextQuestion() {
+        let questionIndex = Math.floor(Math.random() * questions.length);
+        let q = questions[questionIndex];
+
+        question.innerHTML = (Math.floor(Math.random() * 10) >= 5) ? q[0] + ' · ' + q[1] : q[1] + ' · ' + q[0] ;
+        question.setAttribute('data-correct-answer', (q[0] * q[1]));
+        question.setAttribute('data-number-id', questionIndex);
+
+        answerAttempt.value = '';
+        answerAttempt.focus();
+    }
+    
+    function endRound() {
+        question.remove();
+        answerAttempt.remove();
+        submitAnswer.remove();
+        progressBar.remove();
+
+        answerInformation.innerHTML = '<p class="correct">Nice! Well fought!<br>Skill level:' +  Math.ceil((1-cntErrors/cntQuestions)*100) + '%</p>';
+    }
+
+    function checkAnswer() {
+        if (answerAttempt.value === '') {
+             return false; 
+        }
+        
+        // Correct Answer
+        if (parseInt(answerAttempt.value, 10) === parseInt(question.getAttribute('data-correct-answer'), 10)) {
+            answerInformation.innerHTML = '';
+            questions.splice(question.getAttribute('data-number-id'), 1);
+            progressBar.innerHTML = '<div style="border: 2px solid #444; padding: 5px; width: 50%;"><div style="height: 30px; padding: 0; background: #091; width: ' + Math.ceil(100-(questions.length/cntQuestions)*100) + '%;"></div></div>';
+        } else {
+            // Wrong answer
+            answerInformation.innerHTML = '<span class="incorrect"><b>' + question.innerHTML + ' = ' + question.getAttribute('data-correct-answer') + '</b>. <br/>You:' + answerAttempt.value + '</span>';
+            cntErrors++;
+        }
+        
+        if (questions.length > 0) {
+            generateNextQuestion();
+        } else {
+            endRound();
+        }
+    }
+
+    submitAnswer.addEventListener('click', checkAnswer);
+    // If ENTER is pressed
+    document.addEventListener('keydown', e => e.keyCode === 13 && checkAnswer());
+
+    generateNextQuestion();
+
+</script>
+</html>
